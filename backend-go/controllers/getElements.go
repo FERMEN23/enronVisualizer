@@ -12,16 +12,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var err = godotenv.Load()
+var errGlobal = godotenv.Load()
 
-var admin = os.Getenv("ADMIN")
-var password = os.Getenv("PASSWORD")
-var indexName = os.Getenv("INDEXNAME")
-var pathZincSearch = os.Getenv("PATHZINCSEARCH")
-var max_size = os.Getenv("MAX_RESULT")
-var path = pathZincSearch + indexName + "/_search"
+var (
+	admin          = os.Getenv("ADMIN")
+	password       = os.Getenv("PASSWORD")
+	indexName      = os.Getenv("INDEXNAME")
+	pathZincSearch = os.Getenv("PATHZINCSEARCH")
+	max_size       = os.Getenv("MAX_RESULT")
+	path           = pathZincSearch + indexName + "/_search"
+)
 
 func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
+
 	fromValue := chi.URLParam(r, "fromValue")
 
 	query := fmt.Sprintf(`{	
@@ -31,9 +34,11 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 	}`, fromValue, max_size)
 
 	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	req.SetBasicAuth(admin, password)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
@@ -42,8 +47,9 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	defer resp.Body.Close()
-	log.Println(resp.StatusCode)
+
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
@@ -67,19 +73,23 @@ func GetElementsByID(w http.ResponseWriter, r *http.Request) {
 	}`, id)
 
 	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	req.SetBasicAuth(admin, password)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
 
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	defer resp.Body.Close()
-	log.Println(resp.StatusCode)
+
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
@@ -91,8 +101,10 @@ func GetElementsByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
-	email := chi.URLParam(r, "email")
-	last := chi.URLParam(r, "last")
+	var (
+		email = chi.URLParam(r, "email")
+		last  = chi.URLParam(r, "last")
+	)
 
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
@@ -105,19 +117,23 @@ func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
 	}`, email, last, max_size)
 
 	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	req.SetBasicAuth(admin, password)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
 
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
+
 	defer resp.Body.Close()
-	log.Println(resp.StatusCode)
+
 	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
