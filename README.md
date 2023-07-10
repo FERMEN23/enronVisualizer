@@ -1,24 +1,31 @@
 # enronvisualizer
+Yoy'll need 2 terminals
 
-## Project setup
+You need before start the database zincSearch
+
+## Terminal 1
+```
+cd enronVisualizer/backend-go
+```
+```
+go mod tidy  
+```
+and then to run backend
+```
+go run main.go
+```
+
+
+## Terminal 2
+Make sure that you're in the root path
+```
+cd ../enronVisualizer
+```
+install dependencies
 ```
 npm install
 ```
-
-### Compiles and hot-reloads for development
+and then to run frontend
 ```
 npm run serve
 ```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
