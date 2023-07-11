@@ -2,105 +2,71 @@ package controllers
 
 import (
 	"fmt"
-	"io"
-	"log"
 	"net/http"
-	"os"
-	"strings"
+
+	"backend-go/utils"
 
 	"github.com/go-chi/chi"
-	"github.com/joho/godotenv"
 )
 
-var errGlobal = godotenv.Load()
-
-var (
-	admin          = os.Getenv("ADMIN")
-	password       = os.Getenv("PASSWORD")
-	indexName      = os.Getenv("INDEXNAME")
-	pathZincSearch = os.Getenv("PATHZINCSEARCH")
-	max_size       = os.Getenv("MAX_RESULT")
-	path           = pathZincSearch + indexName + "/_search"
-)
+// Get max_size from .env
+var max_size = utils.GetEnv("MAX_RESULT")
 
 func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 
+	//Retrieve the fromValue parameter
 	fromValue := chi.URLParam(r, "fromValue")
 
+	//query to get all documents from an index (fromValue), that allows pagination
 	query := fmt.Sprintf(`{	
 		"search_type": "alldocuments",
 		"from": %s,
 		"max_results": %s
 	}`, fromValue, max_size)
 
-	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+	//make the htttp request to ZincSearch
+	body := utils.ZincSearchRequest(query)
 
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	req.SetBasicAuth(admin, password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
+	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
+
+	//Write the response that will be sent to the client.
 	w.Write(body)
 }
 
 func GetElementsByID(w http.ResponseWriter, r *http.Request) {
+
+	//Get max_size from .env
+	max_size := utils.GetEnv("MAX_RESULT")
+
+	//Retrieve the id parameter
 	id := chi.URLParam(r, "id")
 
+	//query to get the elements match with the id parameter
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
 		"query":
 		{
 			"term": "_id: %s"
 		},
-		"from": 0
-	}`, id)
+		"from": 0,
+		"max_results": %s
+	}`, id, max_size)
 
-	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+	//make the htttp request to ZincSearch
+	body := utils.ZincSearchRequest(query)
 
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	req.SetBasicAuth(admin, password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-
-	resp, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
+	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
+
+	//Write the response that will be sent to the client.
 	w.Write(body)
 }
 
 func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
+	//Get max_size from .env
+	max_size := utils.GetEnv("MAX_RESULT")
+
 	var (
 		email = chi.URLParam(r, "email")
 		last  = chi.URLParam(r, "last")
@@ -116,30 +82,12 @@ func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
 		"max_results": %s
 	}`, email, last, max_size)
 
-	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
+	//make the htttp request to ZincSearch
+	body := utils.ZincSearchRequest(query)
 
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	req.SetBasicAuth(admin, password)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
-
-	resp, err := http.DefaultClient.Do(req)
-
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Println("Error ocurred:", err)
-	}
-
+	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
+
+	//Write the response that will be sent to the client.
 	w.Write(body)
 }
