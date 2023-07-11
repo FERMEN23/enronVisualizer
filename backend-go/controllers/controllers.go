@@ -19,7 +19,7 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 	fromValue := chi.URLParam(r, "fromValue")
 
 	//query to get all documents from an index (fromValue), that allows pagination
-	query := fmt.Sprintf(`{	
+	query := fmt.Sprintf(`{
 		"search_type": "querystring",
 		"query":
 		{
@@ -28,6 +28,11 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 		"from": %s,
 		"max_results": %s
 	}`, fromValue, max_size)
+	// query := fmt.Sprintf(`{
+	// 	"search_type": "alldocuments",
+	// 	"from": %s,
+	// 	"max_results": %s
+	// }`, fromValue, max_size)
 
 	//make the htttp request to ZincSearch
 	body, err := utils.ZincSearchRequest(query)
