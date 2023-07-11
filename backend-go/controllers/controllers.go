@@ -20,10 +20,9 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 
 	//query to get all documents from an index (fromValue), that allows pagination
 	query := fmt.Sprintf(`{
-		"search_type": "querystring",
-		"query":
-		{
-			"term": "_id: *"
+		"search_type": "matchall",
+		"query": {
+			"match_all": {}
 		},
 		"from": %s,
 		"max_results": %s
