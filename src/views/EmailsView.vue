@@ -29,13 +29,6 @@
 
       </div>
 
-      <!-- <div v-if="tableData.length==0 && loadedData"
-        class='w-full items-center max-w-lg px-10 py-8 mx-auto bg-white rounded-lg shadow-xl' id='main-content'>
-          <div class="border border px-4 border-2 h-24 flex justify-center items-center text-gray-400 text-lg rounded-lg font-bold focus:ring-2 focus:ring-indigo-500">
-            There is no sender matching with: "{{ searchTerm }}"
-          </div>
-      </div> -->
-
       <div v-if="tableData.length==0 && loadedData"
         class="h-screen w-screen flex justify-center">
 
@@ -130,14 +123,14 @@ export default defineComponent({
     },
 
     async getData(pageNumber: number) {
+      
       this.tableData = [];
       this.loadedData = false;
 
-      const startIndex = (pageNumber - 1) * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      try {
-        const response = await axios.get(`/elementsId/${endIndex}`);
+      var startIndex = (pageNumber - 1) * this.pageSize;
 
+      try {
+        const response = await axios.get(`/elementsId/${startIndex}`);
         this.totalEmails = response.data.hits.total.value;
         this.tableData = response.data.hits.hits;
         this.loadedData = true;
@@ -172,7 +165,7 @@ export default defineComponent({
         }
       } else {
 
-        this.getData(0);
+        this.getData(1);
 
       }
     },
@@ -193,7 +186,7 @@ export default defineComponent({
   },
   mounted() {
 
-    this.getData(0);
+    this.getData(1);
     this.getMaxSize();
 
   },

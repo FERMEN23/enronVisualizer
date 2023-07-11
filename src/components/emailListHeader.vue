@@ -109,7 +109,7 @@ export default defineComponent({
   },
   methods: {
     getDataFunction(): void {
-      this.getData(0);
+      this.getData(1);
     },
     previousPageFunction(): void {
       this.previousPage();

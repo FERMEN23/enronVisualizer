@@ -88,7 +88,6 @@ export default defineComponent({
     const router: Router = useRouter();
 
     const navigateToView = (id: string): void => {
-      console.log(router, id);
       router.push(`/EmailContent/${id}`);
       
     };
