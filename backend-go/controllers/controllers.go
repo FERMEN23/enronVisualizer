@@ -28,13 +28,7 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 		"from": %s,
 		"max_results": %s
 	}`, fromValue, max_size)
-	// query := fmt.Sprintf(`{
-	// 	"search_type": "alldocuments",
-	// 	"from": %s,
-	// 	"max_results": %s
-	// }`, fromValue, max_size)
 
-	//make the htttp request to ZincSearch
 	body, err := utils.ZincSearchRequest(query)
 	if err != nil {
 		log.Println("Error ocurred:", err)
