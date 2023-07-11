@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"backend-go/utils"
@@ -19,13 +20,20 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 
 	//query to get all documents from an index (fromValue), that allows pagination
 	query := fmt.Sprintf(`{	
-		"search_type": "alldocuments",
+		"search_type": "querystring",
+		"query":
+		{
+			"term": "_id: *"
+		},
 		"from": %s,
 		"max_results": %s
 	}`, fromValue, max_size)
 
 	//make the htttp request to ZincSearch
-	body := utils.ZincSearchRequest(query)
+	body, err := utils.ZincSearchRequest(query)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
 
 	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
@@ -54,7 +62,10 @@ func GetElementsByID(w http.ResponseWriter, r *http.Request) {
 	}`, id, max_size)
 
 	//make the htttp request to ZincSearch
-	body := utils.ZincSearchRequest(query)
+	body, err := utils.ZincSearchRequest(query)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
 
 	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
@@ -83,11 +94,20 @@ func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
 	}`, email, last, max_size)
 
 	//make the htttp request to ZincSearch
-	body := utils.ZincSearchRequest(query)
+	body, err := utils.ZincSearchRequest(query)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
 
 	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
 
 	//Write the response that will be sent to the client.
 	w.Write(body)
+}
+
+func GetEnvMaxSize(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	log.Println("Value max_size from backend:", max_size)
+	w.Write([]byte(max_size))
 }

@@ -37,7 +37,7 @@ func EnvsZincSearch() (string, string, string) {
 	return admin, password, path
 }
 
-func ZincSearchRequest(query string) []byte {
+func ZincSearchRequest(query string) ([]byte, error) {
 
 	//Get enviroment variables to ZincSearch connection
 	admin, password, path := EnvsZincSearch()
@@ -47,6 +47,7 @@ func ZincSearchRequest(query string) []byte {
 
 	if err != nil {
 		log.Println("Error ocurred:", err)
+		return nil, err
 	}
 
 	//Set the basic authentication credentials on the request
@@ -62,6 +63,7 @@ func ZincSearchRequest(query string) []byte {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Println("Error ocurred:", err)
+		return nil, err
 	}
 
 	//free up resources and avoid possible memory leaks.
@@ -75,7 +77,8 @@ func ZincSearchRequest(query string) []byte {
 
 	if err != nil {
 		log.Println("Error ocurred:", err)
+		return nil, err
 	}
 
-	return body
+	return body, nil
 }

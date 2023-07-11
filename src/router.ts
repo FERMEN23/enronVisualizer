@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import EmailsView from '@/views/EmailsView.vue'; // Import your view components
+import EmailsView from '@/views/EmailsView.vue'; 
 import EmailContentView from '@/views/EmailContentView.vue'
-//import HelloWorld from '@/components/HelloWorld.vue'
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -13,8 +13,8 @@ const routes: Array<RouteRecordRaw> = [
     name: 'EmailContent',
     component: EmailContentView,
     props: true
-   }
-  // Add more routes for your views
+  }
+  
 ];
 
 const router = createRouter({

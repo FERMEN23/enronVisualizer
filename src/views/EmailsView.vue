@@ -1,37 +1,75 @@
 <template>
-    <HeaderApp></HeaderApp>
-      <div v-if="tableData.length==0" class="flex justify-center items-center h-screen">
+  <div>
+      <HeaderApp></HeaderApp>
+
+      <!-- if any email has been load, show a loading spin -->
+      <div v-if="tableData.length==0 && !loadedData" class="flex justify-center items-center h-screen">
         <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
       </div>
-      <div v-else>
-      <div class="flex-1 px-2" x-data="{ checkAll: false, filterMessages: false }">
-      <EmailListHeader
-          :currentPage= "currentPage"
-          :pageSize="pageSize" 
-          :length="totalEmails" 
-          :getData = "getData"  
-          :previousPage = "previousPage"
-          :nextPage = "nextPage" 
-          :searchTerm = "searchTerm"
-          @valorActualizado="actualizarValor"     
-      ></EmailListHeader>
-      <!-- ToDo: Pasar esto a un componente, que permita modificar el texto search Term -->
-      
-        <EmailList
-        :displayedItems="tableData" 
-        >
-        </EmailList>
-    </div>
-    </div> 
+
+      <div v-if="tableData.length!=0 && loadedData">
+          <div class="flex-1 px-2" x-data="{ checkAll: false, filterMessages: false }">
+            <EmailListHeader
+                :currentPage= "currentPage"
+                :pageSize="pageSize"
+                :length="totalEmails"
+                :getData = "getData"
+                :previousPage = "previousPage"
+                :nextPage = "nextPage"
+                :searchTerm = "searchTerm"
+                @valorActualizado="actualizarValor"
+            ></EmailListHeader>
+
+              <EmailList
+              :displayedItems="tableData"
+              >
+              </EmailList>
+
+          </div>
+
+      </div>
+
+      <!-- <div v-if="tableData.length==0 && loadedData"
+        class='w-full items-center max-w-lg px-10 py-8 mx-auto bg-white rounded-lg shadow-xl' id='main-content'>
+          <div class="border border px-4 border-2 h-24 flex justify-center items-center text-gray-400 text-lg rounded-lg font-bold focus:ring-2 focus:ring-indigo-500">
+            There is no sender matching with: "{{ searchTerm }}"
+          </div>
+      </div> -->
+
+      <div v-if="tableData.length==0 && loadedData"
+        class="h-screen w-screen flex justify-center">
+
+        <div class="container mt-20 items-center justify-between px-5 text-gray-700">
+
+              <!-- <div class="text-4xl text-black-500 font-dark font-extrabold mb-4">
+                Not found
+              </div> -->
+
+              <p class="text-xl md:text-xl font-light leading-normal mb-8">
+                There is no sender matching with: "{{ searchTerm }}"
+              </p>
+
+              <a href="/" class="px-5 inline py-3 text-sm font-medium leading-5 shadow-2xl text-white transition-all duration-400 border border-transparent rounded-lg focus:outline-none bg-gray-600 active:bg-gray-600 hover:bg-gray-800">
+                Reload
+              </a>
+
+        </div>
+
+      </div>
+
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 
 import HeaderApp from '../components/HeaderApp.vue';
 import EmailListHeader from '../components/emailListHeader.vue';
 import EmailList from '../components/emailList.vue';
 import axios from 'axios';
+
+import { resultType } from '../types';
+
 
 export default defineComponent({
   name: 'EmailsView',
@@ -42,14 +80,12 @@ export default defineComponent({
   },
   data() {
     return {
-      tableData: [] as any[], // Cambia el tipo de tableData a 'any[]'
-      pageSize: 20,
+      tableData: [] as resultType[], //list of emails to show
+      pageSize: 0,
       currentPage: 1,
-      propValue: 'Valor inicial',
-      to: [] as string[], // Cambia el tipo de to a 'string[]'
-      totalPagesNum: 0,
       totalEmails: 0,
       searchTerm: '',
+      loadedData: false,
     };
   },
   computed: {
@@ -67,77 +103,99 @@ export default defineComponent({
       }
     },
     previousPage() {
+
       if (this.currentPage > 1) {
         this.currentPage--;
       }
+
       if (this.searchTerm === '') {
         this.getData(this.currentPage);
       } else {
         this.getDataByFilter(this.currentPage);
       }
     },
+
     nextPage() {
+
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
       }
+
       if (this.searchTerm === '') {
         this.getData(this.currentPage);
       } else {
         this.getDataByFilter(this.currentPage);
       }
+
     },
-    // fechaCorta(fecha: string) {
-    //   const date = new Date(fecha);
-    //   const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    //   return date.toLocaleDateString(undefined, options);
-    // },
+
     async getData(pageNumber: number) {
       this.tableData = [];
+      this.loadedData = false;
+
       const startIndex = (pageNumber - 1) * this.pageSize;
       const endIndex = startIndex + this.pageSize;
       try {
         const response = await axios.get(`/elementsId/${endIndex}`);
-        console.log(response)
+
         this.totalEmails = response.data.hits.total.value;
         this.tableData = response.data.hits.hits;
+        this.loadedData = true;
+
       } catch (error) {
+
         console.error(error);
+
       }
     },
     async getDataByFilter(pageNumber: number) {
+
       if (this.searchTerm !== '') {
+
         this.tableData = [];
+        this.loadedData = false;
         const startIndex = (pageNumber - 1) * this.pageSize;
         const endIndex = startIndex + this.pageSize;
+
         try {
+
           const response = await axios.get(`/elementsFilter/${this.searchTerm}/${endIndex}`);
+
           this.totalEmails = response.data.hits.total.value;
           this.tableData = response.data.hits.hits;
+          this.loadedData = true;
+
         } catch (error) {
+
           console.error(error);
+
         }
       } else {
+
         this.getData(0);
+
       }
     },
+
+    async getMaxSize() {
+      try {
+
+          const response = await axios.get(`/getMaxSize`);
+          this.pageSize= response.data
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+    },
+
   },
   mounted() {
+
     this.getData(0);
+    this.getMaxSize();
+
   },
-  // setup() {
-  //   const fecha = ref(new Date());
-  //   const fechaCorta = ref('');
-
-  //   const cambiarFormatoFecha = () => {
-  //     fechaCorta.value = format(fecha.value, 'dd/MM/yyyy');
-  //     return fechaCorta.value ;
-  //   };
-
-  //   return {
-  //     fecha,
-  //     fechaCorta,
-  //     cambiarFormatoFecha,
-  //   };
-  // },
 });
 </script>
