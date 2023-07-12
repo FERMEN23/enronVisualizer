@@ -26,6 +26,7 @@ func main() {
 	router.Get("/elementsFilter/{email}/{last}", controllers.GetElementsIdAndFilter)
 	router.Get("/elementsById/{id}", controllers.GetElementsByID)
 	router.Get("/getMaxSize", controllers.GetEnvMaxSize)
+	router.Get("/allElements", controllers.GetAllElements)
 
 	//start an HTTP server and listen for incoming requests on a specified address
 	log.Printf("Server started on  %s", port)

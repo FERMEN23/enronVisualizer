@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"backend-go/utils"
 
@@ -19,14 +20,24 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 	fromValue := chi.URLParam(r, "fromValue")
 
 	//query to get all documents from an index (fromValue), that allows pagination
-	query := fmt.Sprintf(`{
-		"search_type": "matchall",
-		"query": {
-			"match_all": {}
+
+	intFirstIndex, err := strconv.Atoi(fromValue)
+	intFirstIndex--
+
+	intMaxSize, err := strconv.Atoi(max_size)
+
+	endIndex := intFirstIndex + intMaxSize + 1
+
+	fmt.Print(fromValue, endIndex)
+	query := fmt.Sprintf(`{	
+		"search_type": "querystring",
+		"sort_fields": ["ID"],
+		"query":
+		{
+			"term": "+ID: >%d + ID: < %d"
 		},
-		"from": %s,
 		"max_results": %s
-	}`, fromValue, max_size)
+	}`, intFirstIndex, endIndex, max_size)
 
 	body, err := utils.ZincSearchRequest(query)
 	if err != nil {
@@ -108,4 +119,24 @@ func GetEnvMaxSize(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	log.Println("Value max_size from backend:", max_size)
 	w.Write([]byte(max_size))
+}
+
+func GetAllElements(w http.ResponseWriter, r *http.Request) {
+
+	//query to get all documents from an index (fromValue), that allows pagination
+	query := `{
+		"search_type": "alldocuments",
+		"from": 0
+	}`
+
+	body, err := utils.ZincSearchRequest(query)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
+
+	//Set the "Content-Type" header in the response to be sent to the client.
+	w.Header().Set("Content-Type", "application/json")
+
+	//Write the response that will be sent to the client.
+	w.Write(body)
 }

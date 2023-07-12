@@ -127,13 +127,15 @@ export default defineComponent({
       this.tableData = [];
       this.loadedData = false;
 
-      var startIndex = (pageNumber - 1) * this.pageSize;
+      var startIndex = (pageNumber - 1) * this.pageSize+1;
 
       try {
         const response = await axios.get(`/elementsId/${startIndex}`);
-        this.totalEmails = response.data.hits.total.value;
+    
         this.tableData = response.data.hits.hits;
         this.loadedData = true;
+
+        this.getTotalEmails()
 
       } catch (error) {
 
@@ -153,10 +155,11 @@ export default defineComponent({
         try {
 
           const response = await axios.get(`/elementsFilter/${this.searchTerm}/${endIndex}`);
-
+  
           this.totalEmails = response.data.hits.total.value;
           this.tableData = response.data.hits.hits;
           this.loadedData = true;
+          
 
         } catch (error) {
 
@@ -183,11 +186,25 @@ export default defineComponent({
       }
     },
 
+    async getTotalEmails() {
+      try {
+        const response = await axios.get(`/allElements`);
+          console.log(response)
+          this.totalEmails = response.data.hits.total.value;
+
+      } catch (error) {
+
+        console.error(error);
+
+      }
+    },
+
   },
   mounted() {
 
     this.getData(1);
     this.getMaxSize();
+    // this.getTotalEmails()
 
   },
 });
