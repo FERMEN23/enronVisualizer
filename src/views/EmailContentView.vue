@@ -1,7 +1,16 @@
 <template>
     <div class=" items-center">
       <HeaderApp></HeaderApp>
-      <emailContent
+      <div v-if="errorOcurred">
+          <ErrorComponent
+          :codeError="errorObject.code"
+          :nameError="errorObject.name"
+          :messageError="errorObject.message"
+          ></ErrorComponent>
+      </div>
+
+      <div v-else>
+        <emailContent
             :emailSubject="emailSubject!=''? emailSubject : '------------ No subject ------------'"
             :fromInitial="fromInitial"
             :fromAddress="emailFrom? emailFrom.Address : ''"
@@ -10,6 +19,9 @@
             :dateAndTime="dateAndTime(emailDate)"
             :Cc="emailCc"
         ></emailContent>
+
+      </div>
+        
   </div>
 </template>
   
@@ -19,6 +31,7 @@ import axios from 'axios';
 
 import emailContent from '@/components/emailContent.vue';
 import HeaderApp from '@/components/HeaderApp.vue';
+import ErrorComponent from '@/components/errorComponent.vue';
 
 import { formatDate } from '@/utils'
 import { emailAddress } from '../types';
@@ -31,6 +44,7 @@ export default defineComponent({
   components: {
     HeaderApp,
     emailContent,
+    ErrorComponent,
   },
 
   props: {
@@ -50,7 +64,8 @@ export default defineComponent({
       emailCc: '',
       emailDate: '',
       fromInitial: '',
-      
+      errorOcurred: false,
+      errorObject: {name: '', message: '', code: ''}
     };
   },
 
@@ -74,7 +89,7 @@ export default defineComponent({
     },
 
     async getElement(): Promise<any> {
-
+      this.errorOcurred = false;
       try {
         const response = await axios.get('/emailById/' + this.id);
 
@@ -95,11 +110,12 @@ export default defineComponent({
 
         this.fromInitial = this.getInitials();
 
-      } catch (error) {
-
-        console.error(error);
-        return [];
-        
+      } catch (error: any) {
+        this.errorOcurred = true;
+        this.errorObject.name = error.name
+        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.code = error.code
+       // console.error("Error",this.errorObject);
       }
     },
   },

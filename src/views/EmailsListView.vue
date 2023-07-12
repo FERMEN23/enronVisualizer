@@ -32,6 +32,14 @@
         </a>
       </div>
     </div>
+
+    <div v-if="errorOcurred">
+      <ErrorComponent
+      :codeError="errorObject.code"
+      :nameError="errorObject.name"
+      :messageError="errorObject.message"
+      ></ErrorComponent>
+    </div>
   </div>
 </template>
 
@@ -41,6 +49,7 @@ import { defineComponent } from 'vue';
 import HeaderApp from '../components/HeaderApp.vue';
 import EmailListHeader from '../components/emailListHeader.vue';
 import EmailList from '../components/emailList.vue';
+import ErrorComponent from '@/components/errorComponent.vue';
 import axios from 'axios';
 
 import { resultType } from '../types';
@@ -52,6 +61,7 @@ export default defineComponent({
     HeaderApp,
     EmailListHeader,
     EmailList,
+    ErrorComponent,
   },
   data() {
     return {
@@ -61,6 +71,8 @@ export default defineComponent({
       totalEmails: 0,
       searchTerm: '',
       loadedData: false,
+      errorOcurred: false,
+      errorObject: {name: '', message: '', code: ''}
     };
   },
   computed: {
@@ -68,13 +80,13 @@ export default defineComponent({
       return Math.ceil(this.totalEmails / this.paginationSize);
     },
     loadSpinner(): boolean{
-      return this.emailsList.length == 0 && !this.loadedData
+      return this.emailsList.length == 0 && !this.loadedData && !this.errorOcurred
     },
     displayItems(): boolean {
-      return this.emailsList.length != 0 && this.loadedData
+      return this.emailsList.length != 0 && this.loadedData && !this.errorOcurred
     },
     itemNotFounded(): boolean {
-      return this.emailsList.length == 0 && this.loadedData
+      return this.emailsList.length == 0 && this.loadedData && !this.errorOcurred
     }
   },
   methods: {
@@ -113,6 +125,8 @@ export default defineComponent({
     async getEmailsPagination(pageNumber: number) {
       this.emailsList = [];
       this.loadedData = false;
+      this.errorOcurred = false;
+      this.errorObject= {name: '', message: '', code: ''}
 
       const startIndex = (pageNumber - 1) * this.paginationSize + 1;
 
@@ -124,14 +138,19 @@ export default defineComponent({
 
         this.getTotalEmails()
 
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        this.errorOcurred = true;
+        this.errorObject.name = error.name
+        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.code = error.code
+       // console.error("Error",this.errorObject);
       }
     },
     async getEmailsByFilter(pageNumber: number) {
       if (this.searchTerm !== '') {
         this.emailsList = [];
         this.loadedData = false;
+        this.errorObject= {name: '', message: '', code: ''}
         const startIndex = (pageNumber - 1) * this.paginationSize;
      
         try {
@@ -141,35 +160,46 @@ export default defineComponent({
           this.emailsList = response.data.hits.hits;
           this.loadedData = true;
 
-        } catch (error) {
-          console.error(error);
-        }
+        } catch (error: any) {
+            this.errorOcurred = true;
+            this.errorObject.name = error.name
+            this.errorObject.message = "Sorry an " + error.message +" ocurred"
+            this.errorObject.code = error.code
+       // console.error("Error",this.errorObject);
+      }
       } else {
         this.getEmailsPagination(1);
       }
     },
 
     async getMaxResult() {
+      this.errorObject= {name: '', message: '', code: ''}
       try {
-
         const response = await axios.get(`/getMaxResultVariable`);
         this.paginationSize = response.data
 
-      } catch (error) {
-
-        console.error(error);
-
+      } catch (error: any) {
+        this.errorOcurred = true;
+        this.errorObject.name = error.name
+        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.code = error.code
+       // console.error("Error",this.errorObject);
       }
     },
 
     async getTotalEmails() {
+      this.errorObject= {name: '', message: '', code: ''}
       try {
         const response = await axios.get(`/getallEmails`);
         console.log(response)
         this.totalEmails = response.data.hits.total.value;
 
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        this.errorOcurred = true;
+        this.errorObject.name = error.name
+        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.code = error.code
+       // console.error("Error",this.errorObject);
       }
     },
 
