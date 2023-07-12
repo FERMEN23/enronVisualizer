@@ -1,18 +1,15 @@
 <template>
     <div class=" items-center">
-
       <HeaderApp></HeaderApp>
-
       <emailContent
-            :subject="subject!=''? subject : '------------ No subject ------------'"
-            :Initial="initial"
-            :Address="from? from.Address : ''"
-            :toAsString="toAsString"
-            :message="message"
-            :dateAndTime="dateAndTime(date)"
-            :Cc="Cc"
+            :emailSubject="emailSubject!=''? emailSubject : '------------ No subject ------------'"
+            :fromInitial="fromInitial"
+            :fromAddress="emailFrom? emailFrom.Address : ''"
+            :emailToAsString="emailToAsString"
+            :emailMessage="emailMessage"
+            :dateAndTime="dateAndTime(emailDate)"
+            :Cc="emailCc"
         ></emailContent>
-
   </div>
 </template>
   
@@ -44,17 +41,15 @@ export default defineComponent({
     
   },
   data() {
-
     return {
-
-      message: '',
-      from: {} as emailAddress,
-      subject: '',
-      to: [] as emailAddress[],
-      toAsString: '',
-      Cc: '',
-      date: '',
-      initial: '',
+      emailMessage: '',
+      emailFrom: {} as emailAddress,
+      emailSubject: '',
+      emailTo: [] as emailAddress[],
+      emailToAsString: '',
+      emailCc: '',
+      emailDate: '',
+      fromInitial: '',
       
     };
   },
@@ -65,8 +60,8 @@ export default defineComponent({
 
       let initials = '?';
 
-      if (this.from) {
-        const names = this.from.Address.split(' ');
+      if (this.emailFrom) {
+        const names = this.emailFrom.Address.split(' ');
         initials = names.map((name: any) => name.charAt(0).toUpperCase()).join('');
       }
 
@@ -81,24 +76,24 @@ export default defineComponent({
     async getElement(): Promise<any> {
 
       try {
-        const response = await axios.get('/elementsById/' + this.id);
+        const response = await axios.get('/emailById/' + this.id);
 
-        this.subject = response.data.hits.hits[0]._source.subject;
-        this.from = response.data.hits.hits[0]._source.from;
-        this.to = response.data.hits.hits[0]._source.to;
-        this.message = response.data.hits.hits[0]._source.Body;
-        this.date = response.data.hits.hits[0]._source.Date;
+        this.emailSubject = response.data.hits.hits[0]._source.subject;
+        this.emailFrom = response.data.hits.hits[0]._source.from;
+        this.emailTo = response.data.hits.hits[0]._source.to;
+        this.emailMessage = response.data.hits.hits[0]._source.Body;
+        this.emailDate = response.data.hits.hits[0]._source.Date;
 
-        if (this.to) {
-          for (let i = 0; i < this.to.length; i++) {
-            this.toAsString += this.to[i].Address;
-            if (i < this.to.length - 1) {
-              this.toAsString += ', ';
+        if (this.emailTo) {
+          for (let i = 0; i < this.emailTo.length; i++) {
+            this.emailToAsString += this.emailTo[i].Address;
+            if (i < this.emailTo.length - 1) {
+              this.emailToAsString += ', ';
             }
           }
         }
 
-        this.initial = this.getInitials();
+        this.fromInitial = this.getInitials();
 
       } catch (error) {
 

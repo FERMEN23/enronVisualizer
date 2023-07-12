@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import EmailsView from '@/views/EmailsView.vue'; 
+import EmailsListView from '@/views/EmailsListView.vue'; 
 import EmailContentView from '@/views/EmailContentView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'Home',
-    component: EmailsView,
+    name: 'EmailsList',
+    component: EmailsListView,
   },
   {
     path: '/EmailContent/:id',
@@ -23,26 +23,3 @@ const router = createRouter({
 });
 
 export default router;
-
-
-// const routes = [
-//   {
-//     path: "/",
-//     name: "EmailsView",
-//     component: EmailsView,
-//     },
-//     {
-//         path: '/EmailContent/:id',
-//         name: 'EmailContent',
-//         component: EmailContentView,
-//         props: true
-//     }
-  
-// ];
-
-// const router = createRouter({
-//   history: createWebHistory(),
-//   routes,
-// });
-
-// export default router;

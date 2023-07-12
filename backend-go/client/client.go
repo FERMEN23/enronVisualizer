@@ -1,4 +1,4 @@
-package utils
+package client
 
 import (
 	"io"
@@ -10,24 +10,22 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// GetEnv get the value from key enviroment variable
 func GetEnv(key string) string {
-	//load enviroment variables from .env file
 	var errGlobal = godotenv.Load()
-
 	if errGlobal != nil {
-		log.Printf("Error ocurred  %s", errGlobal)
+		log.Printf("Error ocurred:  %s", errGlobal)
 	}
 
-	//Get the value of the key enviroment variable if this exists
 	var value, exists = os.LookupEnv(key)
 	if !exists {
 		log.Printf("Environment variable %s not found", key)
 	}
-
+	//ToDo: error handling when key doesnt exist
 	return value
 }
 
-// Function to get all variables needed to zincSearch connection using function defined above
+// EnvsZincSearch get all variables needed to zincSearch connection using function defined above
 func EnvsZincSearch() (string, string, string) {
 	admin := GetEnv("ADMIN")
 	password := GetEnv("PASSWORD")
@@ -38,7 +36,6 @@ func EnvsZincSearch() (string, string, string) {
 }
 
 func ZincSearchRequest(query string) ([]byte, error) {
-
 	//Get enviroment variables to ZincSearch connection
 	admin, password, path := EnvsZincSearch()
 
@@ -50,13 +47,8 @@ func ZincSearchRequest(query string) ([]byte, error) {
 		return nil, err
 	}
 
-	//Set the basic authentication credentials on the request
 	req.SetBasicAuth(admin, password)
-
-	//Indicate that the request parameter is a json format
 	req.Header.Set("Content-Type", "application/json")
-
-	//Set the User-Agent
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36")
 
 	//hacer la solicitud a ZincSearch

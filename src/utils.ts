@@ -1,7 +1,5 @@
 export function formatDate(dateString: string): string {
-
     const date = new Date(dateString);
-
     const opciones: Intl.DateTimeFormatOptions = { 
       year: 'numeric',
       month: 'long',
@@ -12,13 +10,10 @@ export function formatDate(dateString: string): string {
     };
      
     return date.toLocaleDateString('en-US', opciones);
-
 }
 
-export function shortFormatDate(dateString: string): string {
-      
+export function shortFormatDate(dateString: string): string {     
     const date = new Date(dateString);
-
     const opciones: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'short',
@@ -26,5 +21,4 @@ export function shortFormatDate(dateString: string): string {
     };
     
     return date.toLocaleDateString('en-US', opciones);
-    
 }

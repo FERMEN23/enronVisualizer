@@ -32,4 +32,4 @@ export interface resultType {
     _score: number, 
     _timestamp: string,
     _source : emailType
-  }
+}

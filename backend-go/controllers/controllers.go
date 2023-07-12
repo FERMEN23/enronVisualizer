@@ -6,29 +6,37 @@ import (
 	"net/http"
 	"strconv"
 
-	"backend-go/utils"
+	"backend-go/client"
 
 	"github.com/go-chi/chi"
 )
 
 // Get max_size from .env
-var max_size = utils.GetEnv("MAX_RESULT")
+var max_result = client.GetEnv("MAX_RESULT")
 
-func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
+// getIndexs returns startIndex and endIndex as int to pagination
+func getIndexs(startIndex string) (int, int) {
+	intSirstIndex, err := strconv.Atoi(startIndex)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
+	intSirstIndex--
 
-	//Retrieve the fromValue parameter
-	fromValue := chi.URLParam(r, "fromValue")
+	intMaxResult, err := strconv.Atoi(max_result)
+	if err != nil {
+		log.Println("Error ocurred:", err)
+	}
+	intEndIndex := intSirstIndex + intMaxResult + 1
 
-	//query to get all documents from an index (fromValue), that allows pagination
+	return intSirstIndex, intEndIndex
+}
 
-	intFirstIndex, err := strconv.Atoi(fromValue)
-	intFirstIndex--
+// GetEmailPagination return emails in pagination with ID parameter controlling results
+func GetEmailPagination(w http.ResponseWriter, r *http.Request) {
+	startIndex := chi.URLParam(r, "startIndex")
 
-	intMaxSize, err := strconv.Atoi(max_size)
+	intStartIndex, intEndIndex := getIndexs(startIndex)
 
-	endIndex := intFirstIndex + intMaxSize + 1
-
-	fmt.Print(fromValue, endIndex)
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
 		"sort_fields": ["ID"],
@@ -37,106 +45,84 @@ func GetElementsFrom(w http.ResponseWriter, r *http.Request) {
 			"term": "+ID: >%d + ID: < %d"
 		},
 		"max_results": %s
-	}`, intFirstIndex, endIndex, max_size)
+	}`, intStartIndex, intEndIndex, max_result)
 
-	body, err := utils.ZincSearchRequest(query)
+	body, err := client.ZincSearchRequest(query)
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
 
-	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
-
-	//Write the response that will be sent to the client.
 	w.Write(body)
 }
 
-func GetElementsByID(w http.ResponseWriter, r *http.Request) {
-
-	//Get max_size from .env
-	max_size := utils.GetEnv("MAX_RESULT")
-
-	//Retrieve the id parameter
+// GetEmailByID resturn an email by _id unique indentifier
+func GetEmailByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-
-	//query to get the elements match with the id parameter
+	//ToDo- validate id input
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
 		"query":
 		{
 			"term": "_id: %s"
 		},
-		"from": 0,
-		"max_results": %s
-	}`, id, max_size)
+		"from": 0
+	}`, id)
 
-	//make the htttp request to ZincSearch
-	body, err := utils.ZincSearchRequest(query)
+	body, err := client.ZincSearchRequest(query)
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
 
-	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
-
-	//Write the response that will be sent to the client.
 	w.Write(body)
 }
 
-func GetElementsIdAndFilter(w http.ResponseWriter, r *http.Request) {
-	//Get max_size from .env
-	max_size := utils.GetEnv("MAX_RESULT")
-
+// GetEmailsWithFilter return emails filtered parameter term
+func GetEmailsWithFilter(w http.ResponseWriter, r *http.Request) {
 	var (
-		email = chi.URLParam(r, "email")
-		last  = chi.URLParam(r, "last")
+		term       = chi.URLParam(r, "term")
+		startIndex = chi.URLParam(r, "startIndex")
 	)
 
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
 		"query":
 		{
-			"term": "from.Address: *%s*"
+			"term": "%s"
 		},
 		"from": %s,
 		"max_results": %s
-	}`, email, last, max_size)
+	}`, term, startIndex, max_result)
 
-	//make the htttp request to ZincSearch
-	body, err := utils.ZincSearchRequest(query)
+	body, err := client.ZincSearchRequest(query)
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
 
-	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
-
-	//Write the response that will be sent to the client.
 	w.Write(body)
 }
 
-func GetEnvMaxSize(w http.ResponseWriter, r *http.Request) {
+// GetEnvMaxResult return max result value from .env file
+func GetEnvMaxResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	log.Println("Value max_size from backend:", max_size)
-	w.Write([]byte(max_size))
+	log.Println("Value max_size from backend:", max_result)
+	w.Write([]byte(max_result))
 }
 
-func GetAllElements(w http.ResponseWriter, r *http.Request) {
-
-	//query to get all documents from an index (fromValue), that allows pagination
+// GetAllEmails return all elements from zincSearch
+func GetAllEmails(w http.ResponseWriter, r *http.Request) {
 	query := `{
 		"search_type": "alldocuments",
 		"from": 0
 	}`
 
-	body, err := utils.ZincSearchRequest(query)
+	body, err := client.ZincSearchRequest(query)
 	if err != nil {
 		log.Println("Error ocurred:", err)
 	}
 
-	//Set the "Content-Type" header in the response to be sent to the client.
 	w.Header().Set("Content-Type", "application/json")
-
-	//Write the response that will be sent to the client.
 	w.Write(body)
 }
