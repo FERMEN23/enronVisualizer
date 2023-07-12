@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 
 	"backend-go/client"
@@ -12,7 +13,7 @@ import (
 )
 
 // Get max_size from .env
-var max_result = client.GetEnv("MAX_RESULT")
+var max_result, err = client.GetEnv("MAX_RESULT")
 
 // getIndexs returns startIndex and endIndex as int to pagination
 func getIndexs(startIndex string) (int, int) {
@@ -29,6 +30,14 @@ func getIndexs(startIndex string) (int, int) {
 	intEndIndex := intSirstIndex + intMaxResult + 1
 
 	return intSirstIndex, intEndIndex
+}
+
+// validateID validate that the input is a string that match with a pattern
+func validateID(id string) bool {
+	pattern := "^[A-Z0-9a-z]{11}$"
+	match, _ := regexp.MatchString(pattern, id)
+
+	return match
 }
 
 // GetEmailPagination return emails in pagination with ID parameter controlling results
@@ -49,7 +58,8 @@ func GetEmailPagination(w http.ResponseWriter, r *http.Request) {
 
 	body, err := client.ZincSearchRequest(query)
 	if err != nil {
-		log.Println("Error ocurred:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -59,7 +69,13 @@ func GetEmailPagination(w http.ResponseWriter, r *http.Request) {
 // GetEmailByID resturn an email by _id unique indentifier
 func GetEmailByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	//ToDo- validate id input
+
+	valid := validateID(id)
+	if !valid {
+		http.Error(w, "invalid ID input", http.StatusBadRequest)
+		return
+	}
+
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",
 		"query":
@@ -71,7 +87,8 @@ func GetEmailByID(w http.ResponseWriter, r *http.Request) {
 
 	body, err := client.ZincSearchRequest(query)
 	if err != nil {
-		log.Println("Error ocurred:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -97,7 +114,8 @@ func GetEmailsWithFilter(w http.ResponseWriter, r *http.Request) {
 
 	body, err := client.ZincSearchRequest(query)
 	if err != nil {
-		log.Println("Error ocurred:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -107,7 +125,6 @@ func GetEmailsWithFilter(w http.ResponseWriter, r *http.Request) {
 // GetEnvMaxResult return max result value from .env file
 func GetEnvMaxResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	log.Println("Value max_size from backend:", max_result)
 	w.Write([]byte(max_result))
 }
 
@@ -120,7 +137,8 @@ func GetAllEmails(w http.ResponseWriter, r *http.Request) {
 
 	body, err := client.ZincSearchRequest(query)
 	if err != nil {
-		log.Println("Error ocurred:", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

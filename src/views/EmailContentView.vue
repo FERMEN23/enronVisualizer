@@ -19,9 +19,7 @@
             :dateAndTime="dateAndTime(emailDate)"
             :Cc="emailCc"
         ></emailContent>
-
       </div>
-        
   </div>
 </template>
   
@@ -70,11 +68,8 @@ export default defineComponent({
   },
 
   methods: {
-
     getInitials(): string {
-
       let initials = '?';
-
       if (this.emailFrom) {
         const names = this.emailFrom.Address.split(' ');
         initials = names.map((name: any) => name.charAt(0).toUpperCase()).join('');
@@ -85,44 +80,49 @@ export default defineComponent({
 
     dateAndTime(fecha: string): string {
       return formatDate(fecha);
-
     },
 
-    async getElement(): Promise<any> {
+    async getEmailById(): Promise<any> {
       this.errorOcurred = false;
       try {
         const response = await axios.get('/emailById/' + this.id);
+        if (response.data.hits.total.value >0) {
+          this.emailSubject = response.data.hits.hits[0]._source.subject;
+          this.emailFrom = response.data.hits.hits[0]._source.from;
+          this.emailTo = response.data.hits.hits[0]._source.to;
+          this.emailMessage = response.data.hits.hits[0]._source.Body;
+          this.emailDate = response.data.hits.hits[0]._source.Date;
 
-        this.emailSubject = response.data.hits.hits[0]._source.subject;
-        this.emailFrom = response.data.hits.hits[0]._source.from;
-        this.emailTo = response.data.hits.hits[0]._source.to;
-        this.emailMessage = response.data.hits.hits[0]._source.Body;
-        this.emailDate = response.data.hits.hits[0]._source.Date;
-
-        if (this.emailTo) {
-          for (let i = 0; i < this.emailTo.length; i++) {
-            this.emailToAsString += this.emailTo[i].Address;
-            if (i < this.emailTo.length - 1) {
-              this.emailToAsString += ', ';
+          if (this.emailTo) {
+            for (let i = 0; i < this.emailTo.length; i++) {
+              this.emailToAsString += this.emailTo[i].Address;
+              if (i < this.emailTo.length - 1) {
+                this.emailToAsString += ', ';
+              }
             }
           }
+          this.fromInitial = this.getInitials();
+        } else {
+          this.errorOcurred = true;
+          this.errorObject = {
+            name: 'Email no found',
+            message: 'Email with _id: ' + this.id + ' not founded',
+            code: '400'
+          }
         }
-
-        this.fromInitial = this.getInitials();
-
+        
       } catch (error: any) {
+        console.error("Error", error);
         this.errorOcurred = true;
         this.errorObject.name = error.name
-        this.errorObject.message = "Sorry an " + error.message +" ocurred"
-        this.errorObject.code = error.code
-       // console.error("Error",this.errorObject);
+        this.errorObject.message = "Sorry " + error.message
+        this.errorObject.code = error   
       }
     },
   },
 
   mounted() {
-    
-    this.getElement();
+    this.getEmailById();
 
   },
 });

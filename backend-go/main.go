@@ -12,8 +12,10 @@ import (
 )
 
 func main() {
-	port := client.GetEnv("DEFAULT_PORT")
-
+	port, err := client.GetEnv("DEFAULT_PORT")
+	if err != nil {
+		log.Fatal("Error getting port enviroment variable ")
+	}
 	router := chi.NewRouter()
 
 	router.Use(middleware.CorsMiddleware)
