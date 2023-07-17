@@ -28,7 +28,7 @@ func GetEnv(key string) (string, error) {
 }
 
 // EnvsZincSearch get all variables needed to zincSearch connection using function defined above
-func EnvsZincSearch() (string, string, string, error) {
+func envsZincSearch() (string, string, string, error) {
 	admin, err := GetEnv("ADMIN")
 	if err != nil {
 		return "", "", "", err
@@ -55,7 +55,7 @@ func EnvsZincSearch() (string, string, string, error) {
 }
 
 func ZincSearchRequest(query string) ([]byte, error) {
-	admin, password, path, err := EnvsZincSearch()
+	admin, password, path, err := envsZincSearch()
 
 	if err != nil {
 		log.Println("Error ocurred: ", err)

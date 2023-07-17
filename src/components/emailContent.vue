@@ -107,7 +107,6 @@ export default defineComponent({
 
         const navigateToHome = (): void => {
             router.push('/');
-
         };
 
         return {

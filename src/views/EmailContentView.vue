@@ -12,7 +12,7 @@
       <div v-else>
         <emailContent
             :emailSubject="emailSubject!=''? emailSubject : '------------ No subject ------------'"
-            :fromInitial="fromInitial"
+            :fromInitial="getInitials"
             :fromAddress="emailFrom? emailFrom.Address : ''"
             :emailToAsString="emailToAsString"
             :emailMessage="emailMessage"
@@ -61,23 +61,22 @@ export default defineComponent({
       emailToAsString: '',
       emailCc: '',
       emailDate: '',
-      fromInitial: '',
       errorOcurred: false,
       errorObject: {name: '', message: '', code: ''}
     };
   },
-
-  methods: {
+  computed: {
     getInitials(): string {
       let initials = '?';
-      if (this.emailFrom) {
+      if (this.emailFrom && this.emailFrom.Address) {
         const names = this.emailFrom.Address.split(' ');
         initials = names.map((name: any) => name.charAt(0).toUpperCase()).join('');
       }
 
       return initials;
     },
-
+  },
+  methods: {
     dateAndTime(fecha: string): string {
       return formatDate(fecha);
     },
@@ -101,7 +100,7 @@ export default defineComponent({
               }
             }
           }
-          this.fromInitial = this.getInitials();
+          
         } else {
           this.errorOcurred = true;
           this.errorObject = {
