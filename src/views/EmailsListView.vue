@@ -131,7 +131,7 @@ export default defineComponent({
       const startIndex = (pageNumber - 1) * this.paginationSize + 1;
 
       try {
-        const response = await axios.get(`/emailsPagination/${startIndex}`);
+        const response = await axios.get(`/v1/emailsPagination/${startIndex}`);
 
         this.emailsList = response.data.hits.hits;
         this.loadedData = true;
@@ -154,7 +154,7 @@ export default defineComponent({
         const startIndex = (pageNumber - 1) * this.paginationSize;
      
         try {
-          const response = await axios.get(`/emailsFilter/${this.searchTerm}/${startIndex}`);
+          const response = await axios.get(`/v1/emailsFilter/${this.searchTerm}/${startIndex}`);
 
           this.totalEmails = response.data.hits.total.value;
           this.emailsList = response.data.hits.hits;
@@ -175,7 +175,7 @@ export default defineComponent({
     async getMaxResult() {
       this.errorObject= {name: '', message: '', code: ''}
       try {
-        const response = await axios.get(`/getMaxResultVariable`);
+        const response = await axios.get(`/v1/getMaxResultVariable`);
         this.paginationSize = response.data
 
       } catch (error: any) {
@@ -190,7 +190,7 @@ export default defineComponent({
     async getTotalEmails() {
       this.errorObject= {name: '', message: '', code: ''}
       try {
-        const response = await axios.get(`/getallEmails`);
+        const response = await axios.get(`/v1/getallEmails`);
         console.log(response)
         this.totalEmails = response.data.hits.total.value;
 

@@ -20,11 +20,11 @@ func main() {
 
 	router.Use(middleware.CorsMiddleware)
 
-	router.Get("/emailsPagination/{startIndex}", controllers.GetEmailPagination)
-	router.Get("/emailById/{id}", controllers.GetEmailByID)
-	router.Get("/emailsFilter/{term}/{startIndex}", controllers.GetEmailsWithFilter)
-	router.Get("/getMaxResultVariable", controllers.GetEnvMaxResult)
-	router.Get("/getallEmails", controllers.GetAllEmails)
+	router.Get("/v1/emailsPagination/{startIndex}", controllers.GetEmailPagination)
+	router.Get("/v1/emailById/{id}", controllers.GetEmailByID)
+	router.Get("/v1/emailsFilter/{term}/{startIndex}", controllers.GetEmailsWithFilter)
+	router.Get("/v1/getMaxResultVariable", controllers.GetEnvMaxResult)
+	router.Get("/v1/getallEmails", controllers.GetAllEmails)
 
 	//start an HTTP server and listen for incoming requests on a specified address
 	log.Printf("Server started on  %s", port)

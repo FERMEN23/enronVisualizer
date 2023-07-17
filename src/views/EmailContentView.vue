@@ -85,7 +85,7 @@ export default defineComponent({
     async getEmailById(): Promise<any> {
       this.errorOcurred = false;
       try {
-        const response = await axios.get('/emailById/' + this.id);
+        const response = await axios.get('/v1/emailById/' + this.id);
         if (response.data.hits.total.value >0) {
           this.emailSubject = response.data.hits.hits[0]._source.subject;
           this.emailFrom = response.data.hits.hits[0]._source.from;

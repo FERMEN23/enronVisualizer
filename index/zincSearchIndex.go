@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/base64"
-	"fmt"
 	"io"
 	"runtime"
 	"runtime/pprof"
@@ -24,7 +23,7 @@ func index_data() {
 
 	file, err := os.Open("jSonFinal.json")
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		log.Println("Error opening file:", err)
 		return
 	}
 	defer file.Close()
@@ -34,7 +33,8 @@ func index_data() {
 	req, err := http.NewRequest("POST", zinc_url, reader)
 
 	if err != nil {
-		log.Fatal("Error reading request. ", err)
+		log.Println("Error in https request:", err)
+		return
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -43,9 +43,10 @@ func index_data() {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Error in https request:", err)
+		return
 	}
-	fmt.Println("resp", resp)
+
 	defer resp.Body.Close()
 }
 
@@ -58,9 +59,9 @@ func main() {
 	pprof.StartCPUProfile(cpu)
 	defer pprof.StopCPUProfile()
 
-	fmt.Println("Indexing...")
+	log.Println("Indexing...")
 	index_data()
-	fmt.Println("Indexing finished!!!!")
+	log.Println("Indexing finished!!!!")
 
 	runtime.GC()
 	mem, err := os.Create("memory.prof")
