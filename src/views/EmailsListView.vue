@@ -141,7 +141,7 @@ export default defineComponent({
       } catch (error: any) {
         this.errorOcurred = true;
         this.errorObject.name = error.name
-        this.errorObject.message = "Sorry " + error.message +" ocurred"
+        this.errorObject.message = "Sorry " + error.message+"."
         this.errorObject.code = error.code
         console.error("Error", error);
       }
@@ -163,7 +163,7 @@ export default defineComponent({
         } catch (error: any) {
             this.errorOcurred = true;
             this.errorObject.name = error.name
-            this.errorObject.message = "Sorry an " + error.message +" ocurred"
+            this.errorObject.message = "Sorry an " + error.message +"."
             this.errorObject.code = error.code
        // console.error("Error",this.errorObject);
       }
@@ -181,7 +181,7 @@ export default defineComponent({
       } catch (error: any) {
         this.errorOcurred = true;
         this.errorObject.name = error.name
-        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.message = "Sorry an " + error.message +"."
         this.errorObject.code = error.code
        // console.error("Error",this.errorObject);
       }
@@ -197,7 +197,7 @@ export default defineComponent({
       } catch (error: any) {
         this.errorOcurred = true;
         this.errorObject.name = error.name
-        this.errorObject.message = "Sorry an " + error.message +" ocurred"
+        this.errorObject.message = "Sorry an " + error.message+"."
         this.errorObject.code = error.code
        // console.error("Error",this.errorObject);
       }

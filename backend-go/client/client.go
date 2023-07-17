@@ -2,6 +2,7 @@ package client
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func GetEnv(key string) (string, error) {
 
 	var value, exists = os.LookupEnv(key)
 	if !exists {
-		return value, errors.New("enviroment variable doesn't exist")
+		return value, errors.New(fmt.Sprintf("%s enviroment variable doesn't exist", key))
 	}
 
 	return value, nil
@@ -29,21 +30,41 @@ func GetEnv(key string) (string, error) {
 // EnvsZincSearch get all variables needed to zincSearch connection using function defined above
 func EnvsZincSearch() (string, string, string, error) {
 	admin, err := GetEnv("ADMIN")
+	if err != nil {
+		return "", "", "", err
+	}
+
 	password, err := GetEnv("PASSWORD")
+	if err != nil {
+		return "", "", "", err
+	}
+
 	indexName, err := GetEnv("INDEXNAME")
+	if err != nil {
+		return "", "", "", err
+	}
+
 	pathZincSearch, err := GetEnv("PATHZINCSEARCH")
+	if err != nil {
+		return "", "", "", err
+	}
+
 	path := pathZincSearch + indexName + "/_search"
-	return admin, password, path, err
+
+	return admin, password, path, nil
 }
 
 func ZincSearchRequest(query string) ([]byte, error) {
 	admin, password, path, err := EnvsZincSearch()
+
 	if err != nil {
+		log.Println("Error ocurred: ", err)
 		return nil, err
 	}
 
 	req, err := http.NewRequest(http.MethodPost, path, strings.NewReader(query))
 	if err != nil {
+		log.Println("Error ocurred: ", err)
 		return nil, err
 	}
 
@@ -53,15 +74,21 @@ func ZincSearchRequest(query string) ([]byte, error) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
+		log.Println("Error ocurred: ", err)
 		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	log.Println(resp.StatusCode)
+	if resp.StatusCode != 200 {
+		log.Println("Error ocurred and get response", resp.StatusCode)
+		return nil, errors.New("Something went wrong")
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Println("Error ocurred: ", err)
 		return nil, err
 	}
 

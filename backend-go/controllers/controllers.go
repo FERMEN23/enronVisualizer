@@ -16,20 +16,22 @@ import (
 var max_result, err = client.GetEnv("MAX_RESULT")
 
 // getIndexs returns startIndex and endIndex as int to pagination
-func getIndexs(startIndex string) (int, int) {
+func getIndexs(startIndex string) (int, int, error) {
 	intSirstIndex, err := strconv.Atoi(startIndex)
 	if err != nil {
 		log.Println("Error ocurred:", err)
+		return -1, -1, err
 	}
 	intSirstIndex--
 
 	intMaxResult, err := strconv.Atoi(max_result)
 	if err != nil {
 		log.Println("Error ocurred:", err)
+		return -1, -1, err
 	}
 	intEndIndex := intSirstIndex + intMaxResult + 1
 
-	return intSirstIndex, intEndIndex
+	return intSirstIndex, intEndIndex, err
 }
 
 // validateID validate that the input is a string that match with a pattern
@@ -44,7 +46,11 @@ func validateID(id string) bool {
 func GetEmailPagination(w http.ResponseWriter, r *http.Request) {
 	startIndex := chi.URLParam(r, "startIndex")
 
-	intStartIndex, intEndIndex := getIndexs(startIndex)
+	intStartIndex, intEndIndex, err := getIndexs(startIndex)
+	if err != nil {
+		intStartIndex, intEndIndex = 0, 20
+		log.Println("Error ocurred", err, "and set indexes by defaul start", intStartIndex, "end", intEndIndex)
+	}
 
 	query := fmt.Sprintf(`{	
 		"search_type": "querystring",

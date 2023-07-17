@@ -14,7 +14,8 @@ import (
 func main() {
 	port, err := client.GetEnv("DEFAULT_PORT")
 	if err != nil {
-		log.Fatal("Error getting port enviroment variable ")
+		port = "8000"
+		log.Println("Error getting port enviroment variable then set in a default value;", port)
 	}
 	router := chi.NewRouter()
 
